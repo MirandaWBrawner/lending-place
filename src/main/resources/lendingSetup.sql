@@ -47,6 +47,7 @@ CREATE TABLE community_member (
     member_phone VARCHAR(20)
 );
 CREATE TABLE items_on_loan (
+	instance_id BIGINT PRIMARY KEY AUTO_INCREMENT,
 	member_id INT,
     lendable_id INT,
     loan_start_date TIMESTAMP,
@@ -97,16 +98,3 @@ CREATE TABLE donation (
 	amount DOUBLE,
     donation_date TIMESTAMP
 );
-INSERT INTO lendable (name_en_us, name_hi_in,
-    name_sw_tz, name_ar_eg, name_zh_cn,
-    name_es_mx, name_fr_fr, creator, image_path, number_available)
-	VALUES ('The Jungle', 'जंगल', 'Mwitu', 'الأدغال', '丛林', 'La Maraña', 'La Jungle', 'Upton Sinclair', '', 2),
-    ('Phone Charger', 'चार्जर', 'Chaja Ya Simu', 'شاحن', '充电器', 'Cargador', 'Chargeur', 'Apple', '', 5),
-    ('Bicycle', 'साइकिल', 'Baisikeli', 'دَرَّاجَة', '自行车', 'Bicicleta', 'Vélo', 'Chicago Bicycle Company', '', 3);
-INSERT INTO role (name_en_us, name_hi_in,
-    name_sw_tz, name_ar_eg, name_zh_cn,
-    name_es_mx, name_fr_fr) 
-    VALUES ('User', 'HINDI', 'SWAHILI', 'مُستخدِم',
-    'CHINESE', 'SPANISH', 'FRENCH'), 
-    ('Librarian', 'HINDI', 'SWAHILI', 'أمين المكتبة',
-    'CHINESE', 'Bibliotecario', 'FRENCH');

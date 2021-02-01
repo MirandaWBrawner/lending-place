@@ -20,7 +20,8 @@ public class JwtEntryPoint implements AuthenticationEntryPoint {
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		logger.info("Authentication failed. Exception caught: ");
+		logger.info("Authentication failed. Exception caught: " + authException.toString());
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
 }

@@ -55,70 +55,72 @@ class SignupTest {
 	
 	@Test
 	void testSuccessfulSignupDefaultRole() {
-		UserDao userDao = context.getBean(UserDao.class);
-		Random random = new Random();
-		String username = "TestUser";
-		while (userDao.existsByUsername(username)) {
-			username = "TestUser" + random.nextInt();
-			System.out.println(username);
-		} 
-		String password = "abcdefghijklmnopqrstuvwxyz";
-		SignupRequest request = new SignupRequest(
-				"sw", username, password, "theEmail", null);
-		UserRequestHandler requestHandler = context.getBean(UserRequestHandler.class);
-		int expectedHttpStatus = 200; // success
-		Assertions.assertFalse(userDao.existsByUsername(username),
-				"To test the signup, the user should not already be registered. "
-				+ "The existsByUsername method should return false.");
-		Assertions.assertEquals(expectedHttpStatus, requestHandler.signup(request)
-				.getStatusCodeValue(),
-				"A valid signup request should return an http status of 200.");
-		Assertions.assertTrue(userDao.existsByUsername(username),
-				"After a valid signup request, the new user's username should "
-				+ "be retrievable from the database.");
-		Optional<User> optionalUser = userDao.findByUsername(username);
-		Assertions.assertTrue(optionalUser.isPresent(), "The user could not be retrieved "
-				+ "from the database.");
-		User user = optionalUser.get();
-		Assertions.assertTrue(roleService.userHasRoleNamed(user, "User"), 
-				"The default set of roles "
-				+ "should include one with the name 'User'.");
-		Assertions.assertFalse(roleService.userHasRoleNamed(user, "Librarian"),
-				"The default set of roles "
-				+ "should not include 'Librarian'.");
+		for (int i = 0; i < 5; i++) {
+			UserDao userDao = context.getBean(UserDao.class);
+			Random random = new Random();
+			String username = "TestUser";
+			while (userDao.existsByUsername(username)) {
+				username = "TestUser" + random.nextInt();
+			} 
+			String password = "passwordpasswordpassword";
+			SignupRequest request = new SignupRequest(
+					"sw", username, password, "theEmail", null);
+			UserRequestHandler requestHandler = context.getBean(UserRequestHandler.class);
+			int expectedHttpStatus = 200; // success
+			Assertions.assertFalse(userDao.existsByUsername(username),
+					"To test the signup, the user should not already be registered. "
+					+ "The existsByUsername method should return false.");
+			Assertions.assertEquals(expectedHttpStatus, requestHandler.signup(request)
+					.getStatusCodeValue(),
+					"A valid signup request should return an http status of 200.");
+			Assertions.assertTrue(userDao.existsByUsername(username),
+					"After a valid signup request, the new user's username should "
+					+ "be retrievable from the database.");
+			Optional<User> optionalUser = userDao.findByUsername(username);
+			Assertions.assertTrue(optionalUser.isPresent(), "The user could not be retrieved "
+					+ "from the database.");
+			User user = optionalUser.get();
+			Assertions.assertTrue(roleService.userHasRoleNamed(user, "User"), 
+					"The default set of roles "
+					+ "should include one with the name 'User'.");
+			Assertions.assertFalse(roleService.userHasRoleNamed(user, "Librarian"),
+					"The default set of roles "
+					+ "should not include 'Librarian'.");
+		}
 	}
 	
 	@Test
 	void testSuccessfulSignupLibrarianRole() {
-		UserDao userDao = context.getBean(UserDao.class);
-		Random random = new Random();
-		String username = "TestUser";
-		while (userDao.existsByUsername(username)) {
-			username = "TestUser" + random.nextInt();
-			System.out.println(username);
-		} 
-		String password = "passwordpasswordpassword";
-		SignupRequest request = new SignupRequest(
-				"sw", username, password, "theEmail", Set.of("Librarian"));
-		UserRequestHandler requestHandler = context.getBean(UserRequestHandler.class);
-		int expectedHttpStatus = 200; // success
-		Assertions.assertFalse(userDao.existsByUsername(username),
-				"To test the signup, the user should not already be registered. "
-				+ "The existsByUsername method should return false.");
-		Assertions.assertEquals(expectedHttpStatus, requestHandler.signup(request)
-				.getStatusCodeValue(),
-				"A valid signup request should return an http status of 200.");
-		Assertions.assertTrue(userDao.existsByUsername(username),
-				"After a valid signup request, the new user's username should "
-				+ "be retrievable from the database.");
-		Optional<User> optionalUser = userDao.findByUsername(username);
-		Assertions.assertTrue(optionalUser.isPresent(), "The user could not be retrieved "
-				+ "from the database.");
-		User user = optionalUser.get();
-		Assertions.assertTrue(roleService.userHasRoleNamed(user, "User"), 
-				"The set of roles should include one with the name 'User'.");
-		Assertions.assertTrue(roleService.userHasRoleNamed(user, "Librarian"), 
-				"The set of roles should include one with the name 'Librarian'.");
+		for (int i = 0; i < 5; i++) {
+			UserDao userDao = context.getBean(UserDao.class);
+			Random random = new Random();
+			String username = "TestUser";
+			while (userDao.existsByUsername(username)) {
+				username = "TestUser" + random.nextInt();
+			} 
+			String password = "passwordpasswordpassword";
+			SignupRequest request = new SignupRequest(
+					"sw", username, password, "theEmail", Set.of("Librarian"));
+			UserRequestHandler requestHandler = context.getBean(UserRequestHandler.class);
+			int expectedHttpStatus = 200; // success
+			Assertions.assertFalse(userDao.existsByUsername(username),
+					"To test the signup, the user should not already be registered. "
+					+ "The existsByUsername method should return false.");
+			Assertions.assertEquals(expectedHttpStatus, requestHandler.signup(request)
+					.getStatusCodeValue(),
+					"A valid signup request should return an http status of 200.");
+			Assertions.assertTrue(userDao.existsByUsername(username),
+					"After a valid signup request, the new user's username should "
+					+ "be retrievable from the database.");
+			Optional<User> optionalUser = userDao.findByUsername(username);
+			Assertions.assertTrue(optionalUser.isPresent(), "The user could not be retrieved "
+					+ "from the database.");
+			User user = optionalUser.get();
+			Assertions.assertTrue(roleService.userHasRoleNamed(user, "User"), 
+					"The set of roles should include one with the name 'User'.");
+			Assertions.assertTrue(roleService.userHasRoleNamed(user, "Librarian"), 
+					"The set of roles should include one with the name 'Librarian'.");
+		}
 	}
 
 }

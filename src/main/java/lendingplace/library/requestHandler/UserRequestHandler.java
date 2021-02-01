@@ -16,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ import lendingplace.library.request.LoginRequest;
 import lendingplace.library.request.SignupRequest;
 import lendingplace.library.service.AccountService;
 import lendingplace.library.service.LibrarianDetails;
+import lendingplace.library.service.LibrarianDetailsService;
 import lendingplace.library.service.UserRoleService;
 
 @RestController
@@ -59,6 +61,9 @@ public class UserRequestHandler {
 	@Autowired
 	private AccountService accountService;
 	
+	@Autowired
+	LibrarianDetailsService detailsService;
+	
 	@PostMapping(path = "/signup")
 	public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {
 		if (request == null) {
@@ -80,7 +85,7 @@ public class UserRequestHandler {
 		}
 		int userId = accountService.getMaxId() + 1;
 		User user = new User(userId, username, encryptedPassword, 
-				request.getEmail(), roles);
+				request.getEmail(), request.getLanguage(), roles);
 		try {
 			userDao.save(user);
 		} catch (Throwable problem) {
@@ -95,7 +100,7 @@ public class UserRequestHandler {
 	public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
 		if (request == null) {
 			logger.info("Login failed because request was null.");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		UsernamePasswordAuthenticationToken upaToken = new UsernamePasswordAuthenticationToken(
 				request.getUsername(), request.getPassword());
@@ -104,15 +109,20 @@ public class UserRequestHandler {
 			authentication = authenticationManager.authenticate(upaToken);
 		} catch (BadCredentialsException exception) {
 			logger.info("Login failed because login information was incorrect.");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String token = jwtUtilities.generateToken(authentication);
 		LibrarianDetails details = (LibrarianDetails) authentication.getPrincipal();
 		List<String> roles = details.getAuthorities().parallelStream().map(
 				role -> role.getAuthority()).collect(Collectors.toList());
+		try {
+			detailsService.updateLanguage(details, request.getLanguage());
+		} catch (UsernameNotFoundException exception) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
 		ResponseWithJwt response = new ResponseWithJwt(token, details.getUsername(), 
-				details.getEmail(), roles);
+				details.getEmail(), details.getLanguage(), roles);
 		return ResponseEntity.ok(response);
 	}
 }

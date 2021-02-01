@@ -1,5 +1,6 @@
 package lendingplace.library.requestHandler;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,22 +10,27 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lendingplace.library.dao.CommunityMemberDao;
 import lendingplace.library.model.Category;
+import lendingplace.library.model.CommunityMember;
 import lendingplace.library.model.Lendable;
+import lendingplace.library.model.MultipleLendables;
 import lendingplace.library.request.AddLendableToCategoryRequest;
+import lendingplace.library.request.CheckoutRequest;
 import lendingplace.library.request.DeleteItemRequest;
 import lendingplace.library.request.LendableDetailsRequest;
 import lendingplace.library.request.UpdateLendableRequest;
+import lendingplace.library.service.CheckoutResponse;
 import lendingplace.library.service.LendableCategoryService;
 import lendingplace.library.service.LendableService;
 
@@ -37,6 +43,9 @@ public class LendingRequestHandler {
 	
 	@Autowired
 	private LendableCategoryService categoryService;
+	
+	@Autowired
+	private CommunityMemberDao memberDao;
 	
 	@GetMapping(path = "/browse/lendables", produces = "application/json")
 	public Page<Lendable> getLendables(
@@ -64,7 +73,34 @@ public class LendingRequestHandler {
 		return lendableService.searchByNameAndCreator(name, pageSettings);
 	}
 	
+	@PostMapping(path = "/checkout", produces = "application/json")
+	@PreAuthorize("hasAuthority('Librarian')")
+	public ResponseEntity<?> checkout(@RequestBody CheckoutRequest request) {
+		if (request == null) {
+			return ResponseEntity.badRequest().body("The request is empty.");
+		}
+		List<MultipleLendables> items = request.getLendables();
+		if (items == null || items.isEmpty()) {
+			return ResponseEntity.badRequest().body("The checkout request "
+					+ "doesn't contain any items.");
+		}
+		Integer memberId = request.getMemberId();
+		if (memberId == null) {
+			return ResponseEntity.badRequest().body("The checkout request "
+					+ "must include a non-null memberId.");
+		}
+		Optional<CommunityMember> possibleMember = memberDao.findById(memberId);
+		if (possibleMember.isEmpty()) {
+			return ResponseEntity.status(404).body("No one with the specified "
+					+ "member id could be found.");
+		}
+		CommunityMember member = possibleMember.get();
+		CheckoutResponse responseContent = lendableService.checkout(member, items);
+		return ResponseEntity.ok(responseContent);
+	}
+	
 	@PostMapping(path = "/add/lendable")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> addLendable(@RequestBody LendableDetailsRequest request) {
 		Lendable newLendable = null; 
 		try {
@@ -77,6 +113,7 @@ public class LendingRequestHandler {
 	}
 	
 	@PutMapping(path = "/update/lendable")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> updateLendableById(@RequestBody UpdateLendableRequest request) {
 		if (request == null) {
 			return ResponseEntity.badRequest().body("The request is empty.");
@@ -105,6 +142,7 @@ public class LendingRequestHandler {
 	}
 	
 	@PutMapping(path = "/update/addToCategory")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> addLendableToCategory(
 			@RequestBody AddLendableToCategoryRequest request) {
 		if (request == null) {
@@ -139,6 +177,7 @@ public class LendingRequestHandler {
 	}
 	
 	@DeleteMapping(path = "/delete/lendable") 
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> deleteLendableById(@RequestBody DeleteItemRequest request){
 		if (request == null) {
 			return ResponseEntity.badRequest().body("The request is empty.");

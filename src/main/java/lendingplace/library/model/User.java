@@ -30,6 +30,9 @@ public class User {
 	@Column(name = "email")
 	private String email;
 	
+	@Column(name = "language")
+	private String language;
+	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role_join_table", joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -37,20 +40,17 @@ public class User {
 	
 	public User() {}
 
-	public User(int id, String username, String password, String email, Set<UserRole> roles) {
+	public User(int id, String username, String password, String email, 
+			String language, Set<UserRole> roles) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.email = email;
+		this.language = language;
 		this.roles = roles;
 	}
 
-	public User(String username, String password, String email, Set<UserRole> roles) {
-		this.username = username;
-		this.password = password;
-		this.email = email;
-		this.roles = roles;
-	}
+
 
 	public int getId() {
 		return id;
@@ -83,6 +83,16 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
 
 	public Set<UserRole> getRoles() {
 		return roles;

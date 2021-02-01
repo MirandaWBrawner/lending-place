@@ -3,6 +3,7 @@ package lendingplace.library.service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +27,8 @@ public class LibrarianDetails implements UserDetails {
 	
 	private String email;
 	
+	private String language;
+	
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public LibrarianDetails(int id, String username, String password, String email,
@@ -37,13 +40,26 @@ public class LibrarianDetails implements UserDetails {
 		this.authorities = authorities;
 	}
 	
+	public LibrarianDetails(int id, String username, String password, String email,
+			String language, Collection<? extends GrantedAuthority> authorities) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.language = language;
+		this.authorities = authorities;
+	}
+	
 	public static LibrarianDetails build(User user) {
-		List<GrantedAuthority> authorities = user.getRoles().parallelStream()
+		Set<String> roleNames = user.getRoles().parallelStream()
 				.flatMap(role -> role.getNameSet().parallelStream())
+				.distinct().collect(Collectors.toSet());
+		List<GrantedAuthority> authorities = roleNames.parallelStream()
 				.map(name -> new SimpleGrantedAuthority(name))
 				.collect(Collectors.toList());
 		return new LibrarianDetails(user.getId(), user.getUsername(),
-				user.getPassword(), user.getEmail(), authorities);
+				user.getPassword(), user.getEmail(), user.getLanguage(),
+				authorities);
 	}
 
 	public int getId() {
@@ -60,6 +76,14 @@ public class LibrarianDetails implements UserDetails {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public void setUsername(String username) {

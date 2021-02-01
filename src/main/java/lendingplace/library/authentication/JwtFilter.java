@@ -54,6 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	 Returns null if any of these conditions are not met. */
 	private String parseJwt(HttpServletRequest request) {
 		String authenticationHeader = request.getHeader("Authentication");
+		logger.debug("Content of Authentication Header: " + authenticationHeader);
 		
 		// Check that the header for authentication is present and starts with Bearer followed by a space
 		if (StringUtils.hasText(authenticationHeader) && authenticationHeader.startsWith("Bearer ")) {

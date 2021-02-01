@@ -10,6 +10,7 @@ public class ResponseWithJwt implements Serializable {
 	private String jwt;
 	private String username;
 	private String email;
+	private String language;
 	private List<String> roles;
 	private String tokenType = "Bearer";
 	
@@ -18,10 +19,11 @@ public class ResponseWithJwt implements Serializable {
 		roles = new ArrayList<>();
 	}
 
-	public ResponseWithJwt(String jwt, String username, String email, List<String> roles) {
+	public ResponseWithJwt(String jwt, String username, String email, String language, List<String> roles) {
 		this.jwt = jwt;
 		this.username = username;
 		this.email = email;
+		this.language = language;
 		this.roles = roles;
 	}
 
@@ -47,6 +49,14 @@ public class ResponseWithJwt implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public List<String> getRoles() {

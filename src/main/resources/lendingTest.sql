@@ -64,3 +64,40 @@ ALTER TABLE user_role_join_table
 		REFERENCES role (role_id)
 		ON UPDATE CASCADE
         ON DELETE SET NULL;
+        
+SELECT * FROM library_user, user_role_join_table, role
+	WHERE library_user.user_id = user_role_join_table.user_id
+    AND user_role_join_table.role_id = role.role_id;
+    
+UPDATE library_user SET language = 'sw';
+DELETE FROM library_user WHERE  user_id = 2 OR user_id = 1;
+INSERT INTO lendable (name_en_us, name_hi_in,
+    name_sw_tz, name_ar_eg, name_zh_cn,
+    name_es_mx, name_fr_fr, creator, image_path, number_available)
+	VALUES ('The Jungle', 'जंगल', 'Mwitu', 'الأدغال', '丛林', 'La Maraña', 'La Jungle', 'Upton Sinclair', '', 2),
+    ('Phone Charger', 'चार्जर', 'Chaja Ya Simu', 'شاحن', '充电器', 'Cargador', 'Chargeur', 'Apple', '', 5),
+    ('Bicycle', 'साइकिल', 'Baisikeli', 'دَرَّاجَة', '自行车', 'Bicicleta', 'Vélo', 'Chicago Bicycle Company', '', 3);
+INSERT INTO role (name_en_us, name_hi_in,
+    name_sw_tz, name_ar_eg, name_zh_cn,
+    name_es_mx, name_fr_fr) 
+    VALUES ('User', 'HINDI', 'SWAHILI', 'مُستخدِم',
+    'CHINESE', 'SPANISH', 'FRENCH'), 
+    ('Librarian', 'HINDI', 'SWAHILI', 'أمين المكتبة',
+    'CHINESE', 'Bibliotecario', 'FRENCH');
+    
+UPDATE role SET name_es_mx = 'Bibliotecarix', name_fr_fr = 'Documentaliste'
+	WHERE role_id = 2;
+UPDATE role SET name_fr_fr = 'Internaute'
+	WHERE role_id = 1;
+    
+UPDATE lendable SET number_available = 0, name_en_us = 'Example Book', image_path = ''
+	WHERE lendable_id = '9';
+SELECT * FROM lendable WHERE lendable_id = 9;
+
+SHOW CREATE TABLE community_member;
+SELECT * FROM community_member;
+INSERT INTO community_member (member_name, member_email, member_phone)
+	VALUES ('Guest', 'guest@example.com', '1-555-555-5555');
+UPDATE lendable SET number_available = 1000
+	WHERE lendable_id = 3;
+SELECT * FROM items_on_loan;

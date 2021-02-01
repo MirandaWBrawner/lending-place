@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,7 @@ public class CategoryRequestHandler {
 	}
 	
 	@PostMapping(path = "/add/category")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> addCategory(@RequestBody CategoryDetailsRequest request) {
 		Category newCategory = null; 
 		try {
@@ -80,6 +82,7 @@ public class CategoryRequestHandler {
 	}
 	
 	@PutMapping(path = "/update/category")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> updateCategoryById(@RequestBody UpdateCategoryRequest request) {
 		if (request == null) {
 			return ResponseEntity.badRequest().body("The request is empty.");
@@ -107,7 +110,8 @@ public class CategoryRequestHandler {
 		}
 	}
 	
-	@DeleteMapping(path = "/delete/category") 
+	@DeleteMapping(path = "/delete/category")
+	@PreAuthorize("hasAuthority('Librarian')")
 	public ResponseEntity<?> deleteCategoryById(@RequestBody DeleteItemRequest request){
 		if (request == null) {
 			return ResponseEntity.badRequest().body("The request is empty.");
