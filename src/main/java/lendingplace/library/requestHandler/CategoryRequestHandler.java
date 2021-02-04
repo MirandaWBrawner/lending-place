@@ -42,7 +42,7 @@ public class CategoryRequestHandler {
 	public Page<Category> getCategories(
 			@RequestParam(name = "language", required = false) String language,
 			@RequestParam(name = "pageSize", required = false) Integer pageSize, 
-			@RequestParam(name = "pageNumber", required = false) Integer pageNumber, 
+			@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
 			@RequestParam(name = "sortBy", required = false) String sortBy) {
 		Integer defaultPageSize = 20;
 		Integer maxPageSize = 50;

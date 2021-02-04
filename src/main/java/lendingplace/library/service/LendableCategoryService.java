@@ -71,7 +71,8 @@ public class LendableCategoryService {
 		Pageable partialPageSettings = PageRequest.of(0, resultsPerLanguage);
 		for (Method method: CategoryDao.class.getDeclaredMethods()) {
 			if (method.getName().startsWith("findBy")
-					&& method.getName().endsWith("Containing") != exactMatch) {
+					&& method.getName().endsWith("Containing") != exactMatch
+					&& Page.class.isAssignableFrom(method.getReturnType())) {
 				try {
 					Object rawMethodResult = method.invoke(categoryDao, searchTerm, partialPageSettings);
 					Page<Category> partialResultPage = (Page<Category>) rawMethodResult;

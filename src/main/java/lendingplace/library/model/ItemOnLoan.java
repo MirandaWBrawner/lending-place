@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,7 +23,7 @@ public class ItemOnLoan {
 	@JoinColumn(name = "member_id")
 	private CommunityMember member;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "lendable_id")
 	private Lendable lendable;
 	
@@ -40,7 +41,7 @@ public class ItemOnLoan {
 		this.startDate = startDate;
 		this.dueDate = dueDate;
 	}
-
+	
 	public ItemOnLoan(long id, CommunityMember member, Lendable lendable, Timestamp startDate, Timestamp dueDate) {
 		this.id = id;
 		this.member = member;

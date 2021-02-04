@@ -93,6 +93,7 @@ public class UserRequestHandler {
 			return ResponseEntity.status(
 					HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
+		logger.info("Signup successful");
 		return ResponseEntity.ok("You are now signed up.");
 	}
 
@@ -123,6 +124,7 @@ public class UserRequestHandler {
 		}
 		ResponseWithJwt response = new ResponseWithJwt(token, details.getUsername(), 
 				details.getEmail(), details.getLanguage(), roles);
+		logger.info("Login successful");
 		return ResponseEntity.ok(response);
 	}
 }

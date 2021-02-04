@@ -1,5 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS lending;
 USE lending;
+DROP TABLE IF EXISTS pending_loan;
 DROP TABLE IF EXISTS donation;
 DROP TABLE IF EXISTS request;
 DROP TABLE IF EXISTS user_role_join_table;
@@ -52,6 +53,7 @@ CREATE TABLE items_on_loan (
     lendable_id INT,
     loan_start_date TIMESTAMP,
     due_date TIMESTAMP,
+    checkout_pending CHAR(1) DEFAULT 'Y',
     FOREIGN KEY (member_id) REFERENCES community_member (member_id),
     FOREIGN KEY (lendable_id) REFERENCES lendable (lendable_id)
 );
@@ -86,15 +88,25 @@ CREATE TABLE user_role_join_table (
 );
 CREATE TABLE request (
 	request_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(1000),
-    content VARCHAR(20000),
+    title VARCHAR(250),
+    content VARCHAR(16000),
     date_posted TIMESTAMP,
-    member_id INT,
-    FOREIGN KEY (member_id) REFERENCES community_member (member_id)
+    requester_name VARCHAR(1000)
 );
 CREATE TABLE donation (
 	donation_id INT PRIMARY KEY AUTO_INCREMENT,
     donor_name VARCHAR(1000),
-	amount DOUBLE,
+	amount BIGINT,
+    currency VARCHAR(10),
     donation_date TIMESTAMP
+);
+CREATE TABLE pending_loan (
+	pending_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    lendable_id INT,
+    count INT,
+    member_id INT,
+    requester_name VARCHAR(1000),
+    date_posted TIMESTAMP,
+	FOREIGN KEY (lendable_id) REFERENCES lendable (lendable_id),
+    FOREIGN KEY (member_id) REFERENCES community_member (member_id)
 );

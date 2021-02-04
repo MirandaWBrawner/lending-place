@@ -1,5 +1,6 @@
 package lendingplace.library.model;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -150,7 +151,11 @@ public class UserRole {
 	}
 	
 	public Set<String> getNameSet() {
-		return Set.of(getNameArray());
+		Set<String> nameSet = new HashSet<>();
+		for (String name: getNameArray()) {
+			nameSet.add(name);
+		}
+		return nameSet;
 	}
 
 	@Override

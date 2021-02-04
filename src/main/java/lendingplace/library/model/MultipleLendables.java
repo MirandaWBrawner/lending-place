@@ -4,26 +4,25 @@ import java.io.Serializable;
 
 public class MultipleLendables implements Serializable {
 	private static final long serialVersionUID = -5951370817215919049L;
-	private int id;
-	private int count;
+	private Integer id;
+	private Integer count;
 	
 	public MultipleLendables() {}
 	
-	public MultipleLendables(int id, int count) {
-		super();
+	public MultipleLendables(Integer id, Integer count) {
 		this.id = id;
 		this.count = count;
 	}
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
-	public int getCount() {
+	public Integer getCount() {
 		return count;
 	}
-	public void setCount(int count) {
+	public void setCount(Integer count) {
 		this.count = count;
 	}
 	

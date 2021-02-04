@@ -1,6 +1,7 @@
 USE lending;
 SELECT * FROM lendable;
 DESC lendable;
+SELECT * FROM library_user;
 SELECT * FROM item_type;
 DELETE FROM item_type WHERE type_id = 6;
 SELECT lendable_id, name_en_us FROM lendable;
@@ -9,6 +10,10 @@ INSERT INTO lendable_type_join_table
 	(lendable_id, type_id)
     VALUES (1, 1), (2, 3), (2, 4), (3, 2),
     (3, 4), (5, 1), (6, 1);
+INSERT INTO lendable_type_join_table
+	(lendable_id, type_id)
+    VALUES (1, 5), (6, 5),
+    (7, 9);
 SELECT * FROM lendable_type_join_table;
 
 SELECT lt.lendable_id, lt.creator, 
@@ -31,6 +36,10 @@ DELETE FROM lendable WHERE lendable_id = 8;
 INSERT INTO lendable_type_join_table
 	(lendable_id, type_id)
     VALUES (7, 1);
+    
+INSERT INTO lendable_type_join_table
+	(lendable_id, type_id)
+    VALUES (10, 1), (10, 9);
 
 UPDATE lendable SET image_path = ''
 	WHERE image_path IS NULL;
@@ -85,9 +94,17 @@ INSERT INTO role (name_en_us, name_hi_in,
     ('Librarian', 'HINDI', 'SWAHILI', 'أمين المكتبة',
     'CHINESE', 'Bibliotecario', 'FRENCH');
     
-UPDATE role SET name_es_mx = 'Bibliotecarix', name_fr_fr = 'Documentaliste'
+UPDATE role SET name_es_mx = 'Bibliotecarix', 
+	name_fr_fr = 'Documentaliste',
+	name_sw_tz = 'Mkutubi',
+    name_zh_cn = '圖書館館長',
+    name_hi_in = 'पुस्तकालय अध्यक्ष'
 	WHERE role_id = 2;
-UPDATE role SET name_fr_fr = 'Internaute'
+UPDATE role SET name_fr_fr = 'Internaute',
+	name_sw_tz = 'Mtumiaji',
+    name_hi_in = 'सदस्य',
+	name_es_mx = 'Usuarix',
+	name_zh_cn = '用戶'
 	WHERE role_id = 1;
     
 UPDATE lendable SET number_available = 0, name_en_us = 'Example Book', image_path = ''
@@ -95,9 +112,33 @@ UPDATE lendable SET number_available = 0, name_en_us = 'Example Book', image_pat
 SELECT * FROM lendable WHERE lendable_id = 9;
 
 SHOW CREATE TABLE community_member;
+SHOW CREATE TABLE items_on_loan;
+DROP TABLE items_on_loan;
 SELECT * FROM community_member;
 INSERT INTO community_member (member_name, member_email, member_phone)
 	VALUES ('Guest', 'guest@example.com', '1-555-555-5555');
 UPDATE lendable SET number_available = 1000
 	WHERE lendable_id = 3;
 SELECT * FROM items_on_loan;
+SELECT * FROM pending_loan;
+SELECT * FROM request;
+
+INSERT INTO lendable (name_en_us, name_hi_in,
+    name_sw_tz, name_ar_eg, name_zh_cn,
+    name_es_mx, name_fr_fr, creator, image_path, number_available)
+	VALUES ('Private Lies', 'झूठनिज', 'Uongo binafsi', 'الكذبات الخواص', '私立谎言', 'Las mentiras privadas', 'Les mensonges privés', 'Frank Pittman', 'privateLies.png', 555);
+    
+DELETE FROM lendable WHERE lendable_id = 9;
+
+INSERT INTO pending_loan (lendable_id, count, 
+	requester_name, date_posted)
+	VALUES (7, 1, 'Testing', CURRENT_TIMESTAMP());
+INSERT INTO pending_loan (lendable_id, count, 
+	requester_name, date_posted, member_id)
+	VALUES (6, 1, 'Testing', CURRENT_TIMESTAMP(), 1);
+UPDATE lendable SET number_available = 1000;
+UPDATE lendable SET number_available = 0 WHERE lendable_id = 5;
+UPDATE lendable SET number_available = 1 WHERE lendable_id = 1;
+UPDATE lendable SET number_available = 25 WHERE lendable_id = 3;
+SELECT * FROM pending_loan ORDER BY date_posted DESC;
+DELETE FROM item_type WHERE type_id = 8;

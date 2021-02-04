@@ -2,6 +2,7 @@ package lendingplace.library.requestHandler;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,10 +30,13 @@ import lendingplace.library.request.AddLendableToCategoryRequest;
 import lendingplace.library.request.CheckoutRequest;
 import lendingplace.library.request.DeleteItemRequest;
 import lendingplace.library.request.LendableDetailsRequest;
+import lendingplace.library.request.PendingCheckoutRequest;
 import lendingplace.library.request.UpdateLendableRequest;
 import lendingplace.library.service.CheckoutResponse;
 import lendingplace.library.service.LendableCategoryService;
 import lendingplace.library.service.LendableService;
+import lendingplace.library.service.PendingCheckoutResponse;
+import lendingplace.library.service.ReturnLendableResponse;
 
 @RestController
 @CrossOrigin
@@ -49,7 +53,8 @@ public class LendingRequestHandler {
 	
 	@GetMapping(path = "/browse/lendables", produces = "application/json")
 	public Page<Lendable> getLendables(
-			@RequestParam(name = "language", required = false) String language, 
+			@RequestParam(name = "language", required = false) String language,
+			@RequestParam(name = "categoryId", required = false) Integer categoryId,
 			@RequestParam(name = "sortBy", required = false) String sortSetting,
 			@RequestParam(name = "pageSize", required = false) Integer pageSize, 
 			@RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
@@ -59,7 +64,14 @@ public class LendingRequestHandler {
 		if (pageNumber == null || pageNumber < 1) pageNumber = 1;
 		Sort sortingOrder = Sort.by(sortSetting);
 		Pageable pageSettings = PageRequest.of(pageNumber - 1, pageSize, sortingOrder);
-		return lendableService.getLendableDao().findAll(pageSettings);
+		if (categoryId == null) {
+			return lendableService.getLendableDao().findAll(pageSettings);
+		} 
+		Optional<Category> optional = lendableService.getCategoryDao().findById(categoryId);
+		if (optional.isEmpty()) {
+			return lendableService.getLendableDao().findAll(pageSettings);
+		}
+		return lendableService.getLendableDao().findByCategoriesContaining(optional.get(), pageSettings);
 	}
 	
 	@GetMapping(path = "/search/lendables", produces = "application/json")
@@ -71,6 +83,25 @@ public class LendingRequestHandler {
 		if (pageNumber == null || pageNumber < 1) pageNumber = 1;
 		Pageable pageSettings = PageRequest.of(1- pageNumber, pageSize);
 		return lendableService.searchByNameAndCreator(name, pageSettings);
+	}
+	
+	@PostMapping(path = "/reserve", produces = "application/json")
+	public ResponseEntity<?> reserveItems(@RequestBody PendingCheckoutRequest request) {
+		if (request == null) {
+			return ResponseEntity.badRequest().body("The request is empty.");
+		}
+		List<MultipleLendables> items = request.getLendables();
+		if (items == null || items.isEmpty()) {
+			return ResponseEntity.badRequest().body("The checkout request "
+					+ "doesn't contain any items.");
+		}
+		String name = "[No Name]";
+		if (request.getName() != null && !request.getName().isEmpty()) {
+			name = request.getName();
+		}
+		PendingCheckoutResponse responseContent = lendableService.reserveItems(name, items);
+		int httpStatus = responseContent.getNotFoundList().isEmpty() ? 200 : 404;
+		return ResponseEntity.status(httpStatus).body(responseContent);
 	}
 	
 	@PostMapping(path = "/checkout", produces = "application/json")
@@ -96,7 +127,40 @@ public class LendingRequestHandler {
 		}
 		CommunityMember member = possibleMember.get();
 		CheckoutResponse responseContent = lendableService.checkout(member, items);
-		return ResponseEntity.ok(responseContent);
+		int httpStatus = responseContent.getNotFoundList().isEmpty() ? 200 : 404;
+		return ResponseEntity.status(httpStatus).body(responseContent);
+	}
+	
+	@PostMapping(path = "/return", produces = "application/json")
+	@PreAuthorize("hasAuthority('Librarian')")
+	public ResponseEntity<?> returnLendables(@RequestBody CheckoutRequest request) {
+		if (request == null) {
+			return ResponseEntity.badRequest().body("The request is empty.");
+		}
+		List<MultipleLendables> items = request.getLendables();
+		if (items == null || items.isEmpty()) {
+			return ResponseEntity.badRequest().body("The checkout request "
+					+ "doesn't contain any items.");
+		}
+		Integer memberId = request.getMemberId();
+		if (memberId == null) {
+			return ResponseEntity.badRequest().body("The checkout request "
+					+ "must include a non-null memberId.");
+		}
+		Optional<CommunityMember> possibleMember = memberDao.findById(memberId);
+		if (possibleMember.isEmpty()) {
+			return ResponseEntity.status(404).body("No one with the specified "
+					+ "member id could be found.");
+		}
+		CommunityMember member = possibleMember.get();
+		Set<Integer> errorSet = lendableService.returnLendables(member, items);
+		ReturnLendableResponse responseContent = new ReturnLendableResponse(
+				member.getId(), errorSet);
+		if (errorSet.isEmpty()) {
+			return ResponseEntity.ok(responseContent);
+		} else {
+			return ResponseEntity.status(500).body(responseContent);
+		}
 	}
 	
 	@PostMapping(path = "/add/lendable")
