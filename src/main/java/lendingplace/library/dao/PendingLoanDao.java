@@ -15,4 +15,5 @@ public interface PendingLoanDao extends JpaRepository<PendingLoan, Long> {
 	Page<PendingLoan> findByNameContaining(String name, Pageable pageable);
 	List<PendingLoan> findByNameContaining(String name);
 	Page<PendingLoan> findByLendable(Lendable lendable, Pageable pageable);
+	Page<PendingLoan> findAll(Pageable pageable);
 }

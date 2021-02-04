@@ -26,6 +26,7 @@ import lendingplace.library.model.Category;
 import lendingplace.library.model.CommunityMember;
 import lendingplace.library.model.Lendable;
 import lendingplace.library.model.MultipleLendables;
+import lendingplace.library.model.PendingLoan;
 import lendingplace.library.request.AddLendableToCategoryRequest;
 import lendingplace.library.request.CheckoutRequest;
 import lendingplace.library.request.DeleteItemRequest;
@@ -72,6 +73,23 @@ public class LendingRequestHandler {
 			return lendableService.getLendableDao().findAll(pageSettings);
 		}
 		return lendableService.getLendableDao().findByCategoriesContaining(optional.get(), pageSettings);
+	}
+	
+	@GetMapping(path = "/pendingLoans", produces = "application/json")
+	public Page<PendingLoan> getPending(
+			@RequestParam(name = "sortBy", required = false) String sortSetting,
+			@RequestParam(name = "pageSize", required = false) Integer pageSize, 
+			@RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
+		if (sortSetting == null) sortSetting = "creator";
+		if (pageSize == null) pageSize = 20;
+		if (pageSize < 1) pageSize = 1;
+		if (pageNumber == null || pageNumber < 1) pageNumber = 1;
+		Sort sortingOrder = Sort.unsorted();
+		if (sortSetting != null) {
+			sortingOrder = Sort.by(sortSetting);
+		}
+		Pageable pageSettings = PageRequest.of(pageNumber - 1, pageSize, sortingOrder);
+		return lendableService.getPendingLoanDao().findAll(pageSettings);
 	}
 	
 	@GetMapping(path = "/search/lendables", produces = "application/json")
