@@ -77,14 +77,13 @@ CREATE TABLE role (
 CREATE TABLE user_role_join_table (
 	join_key INT PRIMARY KEY AUTO_INCREMENT,
 	user_id INT,
-    role_id INT
-    /*
+    role_id INT,
     FOREIGN KEY (user_id) REFERENCES library_user (user_id)
         ON UPDATE CASCADE
         ON DELETE SET NULL,
     FOREIGN KEY (role_id) REFERENCES role (role_id)
 		ON UPDATE CASCADE
-        ON DELETE SET NULL */
+        ON DELETE SET NULL
 );
 CREATE TABLE request (
 	request_id INT PRIMARY KEY AUTO_INCREMENT,

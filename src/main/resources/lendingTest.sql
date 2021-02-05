@@ -78,6 +78,9 @@ SELECT * FROM library_user, user_role_join_table, role
 	WHERE library_user.user_id = user_role_join_table.user_id
     AND user_role_join_table.role_id = role.role_id;
     
+INSERT INTO user_role_join_table(user_id, role_id)
+	VALUES (0, 1), (0, 2);
+    
 UPDATE library_user SET language = 'sw';
 DELETE FROM library_user WHERE  user_id = 2 OR user_id = 1;
 INSERT INTO lendable (name_en_us, name_hi_in,
@@ -164,3 +167,4 @@ UPDATE pending_loan SET requester_name = 'Emile' WHERE requester_name = 'Test Ch
 UPDATE pending_loan SET requester_name = 'So-jeong' WHERE requester_name = 'Miranda';
 UPDATE pending_loan SET member_id = 2 WHERE requester_name = 'Angelo';
 SELECT * FROM request;
+SELECT * FROM donation;
