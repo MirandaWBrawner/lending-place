@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -222,7 +223,7 @@ public class LendableService {
 	}
 	
 	public CheckoutResponse checkout(CommunityMember member, 
-			List<MultipleLendables> lendables) {
+			List<MultipleLendables> lendables, boolean fromPending) {
 		Timestamp checkoutDate = new Timestamp(System.currentTimeMillis() + 30_000);
 		List<Integer> checkedOutItemIds = new ArrayList<>();
 		List<Integer> notFoundItemIds = new ArrayList<>();
@@ -231,6 +232,27 @@ public class LendableService {
 			Optional<Lendable> possibleLendable = lendableDao.findById(group.getId());
 			if (possibleLendable.isPresent()) {
 				Lendable lendable = possibleLendable.get();
+				if (fromPending) {
+					List<PendingLoan> pendingLoans = pendingLoanDao.findByLendable(lendable);
+					pendingLoans = pendingLoans.parallelStream()
+							.filter(loan -> Objects.equals(loan.getMember(), member))
+							.collect(Collectors.toList());
+					if (!pendingLoans.isEmpty()) {
+						logger.warn(String.format("In checkout. The size of the pendingLoans sublist is %d.",
+								pendingLoans.size()));
+						boolean oneCopySuccess = checkoutOneCopyFromPending(pendingLoans.get(0), member);
+						if (oneCopySuccess) {
+							checkedOutItemIds.add(lendable.getId());
+							logger.warn(String.format("%s has been checked out.", lendable.getEnglish()));
+						} else {
+							notFoundItemIds.add(lendable.getId());
+							logger.warn(String.format("Unable to check out %s.", lendable.getEnglish()));
+						}
+					} else {
+						notFoundItemIds.add(lendable.getId());
+					}
+					continue;
+				}
 				int copiesCheckedOut = 0;
 				for (int i = 0; i < group.getCount(); i++) {
 					int remaining = lendable.getNumberAvailable();
@@ -243,6 +265,7 @@ public class LendableService {
 					}
 				}
 				lendableDao.save(lendable);
+				
 				for (int i = 0; i < copiesCheckedOut; i++) {
 					long timeOnLoan = getTimeOnLoan(lendable);
 					Timestamp dueDate = new Timestamp(checkoutDate.getTime() + timeOnLoan);
@@ -273,14 +296,20 @@ public class LendableService {
 	@Transactional
 	public boolean checkoutOneCopyFromPending(PendingLoan pendingLoan, CommunityMember member) {
 		if (pendingLoan == null) return false;
+		logger.warn("pendingLoan is not null.");
 		if (member == null) return false;
+		logger.warn("member is not null.");
 		if (pendingLoan.getCount() < 1) return false;
+		logger.warn("pendingLoan.count is at last 1.");
 		Lendable lendable = pendingLoan.getLendable();
 		if (lendable == null) return false;
+		logger.warn("lendable from pendingLoan is not null.");
 		Optional<Lendable> possibleItem = lendableDao.findById(lendable.getId());
 		if (possibleItem.isEmpty()) return false;
+		logger.warn("lendable from pendingLoan exists in the database.");
 		lendable = possibleItem.get();
 		if (lendable.getNumberAvailable() < 1) return false;
+		logger.warn("lendable has at least 1 copy available");
 		lendable.setNumberAvailable(lendable.getNumberAvailable() - 1);
 		Timestamp checkoutDate = new Timestamp(System.currentTimeMillis());
 		long timeOnLoan = getTimeOnLoan(lendable);
@@ -290,10 +319,14 @@ public class LendableService {
 		lendableDao.save(onLoan.getLendable());
 		memberDao.save(onLoan.getMember());
 		onLoanDao.save(onLoan);
-		if (pendingLoan.getCount() == 0) {
-			pendingLoanDao.delete(pendingLoan);
+		if (pendingLoan.getCount() <= 1) {
+			logger.warn("The last available copy is being checked out.");
+			pendingLoanDao.deleteById(pendingLoan.getId());
+			pendingLoanDao.flush();
 		} else {
-			pendingLoanDao.save(pendingLoan);
+			logger.warn("The copy being checked out is not the last one.");
+			pendingLoan.setCount(pendingLoan.getCount() - 1);
+			pendingLoanDao.saveAndFlush(pendingLoan);
 		}
 		return true;
 	}
@@ -345,6 +378,10 @@ public class LendableService {
 			}
 		}
 		return errorSet;
+	}
+	public CheckoutResponse check(CommunityMember member, List<MultipleLendables> items, boolean fromPending) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

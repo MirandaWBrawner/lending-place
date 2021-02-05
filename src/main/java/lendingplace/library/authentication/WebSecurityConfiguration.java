@@ -27,14 +27,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			"/browse/**",
 			"/search/**",
 			"/reserve",
-			"/pendingLoans"
+			"/recommend",
+			"/donate"
 	};
 	private final static String[] privateEndpoints = {
 			"/add/**",
 			"/update/**",
 			"/delete/**",
 			"/checkout",
-			"/return"
+			"/return",
+			"/pendingLoans",
+			"/pendingLoans/**"
 	};
 	
 	@Autowired

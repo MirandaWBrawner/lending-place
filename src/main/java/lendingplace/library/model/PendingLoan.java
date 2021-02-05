@@ -36,10 +36,10 @@ public class PendingLoan {
 	@JoinColumn(name = "member_id")
 	private CommunityMember member;
 	
-	// private transient long milliseconds;
+	private transient long milliseconds;
 	
 	public PendingLoan() {
-		// milliseconds = System.currentTimeMillis();
+		milliseconds = System.currentTimeMillis();
 	}
 	
 	public PendingLoan(Lendable lendable, int count, String name, Timestamp datePosted) {
@@ -47,7 +47,7 @@ public class PendingLoan {
 		this.count = count;
 		this.name = name;
 		this.datePosted = datePosted;
-		// milliseconds = datePosted.getTime();
+		milliseconds = datePosted.getTime();
 	}
 
 	public PendingLoan(long id, Lendable lendable, int count, String name, Timestamp datePosted) {
@@ -56,7 +56,7 @@ public class PendingLoan {
 		this.count = count;
 		this.name = name;
 		this.datePosted = datePosted;
-		// milliseconds = datePosted.getTime();
+		milliseconds = datePosted.getTime();
 	}
 
 	public PendingLoan(Lendable lendable, int count, String name, Timestamp datePosted, CommunityMember member) {
@@ -65,7 +65,7 @@ public class PendingLoan {
 		this.name = name;
 		this.datePosted = datePosted;
 		this.member = member;
-		// milliseconds = datePosted.getTime();
+		milliseconds = datePosted.getTime();
 	}
 
 	public PendingLoan(long id, Lendable lendable, int count, String name, Timestamp datePosted,
@@ -76,7 +76,7 @@ public class PendingLoan {
 		this.name = name;
 		this.datePosted = datePosted;
 		this.member = member;
-		// milliseconds = datePosted.getTime();
+		milliseconds = datePosted.getTime();
 	}
 
 	public long getId() {
@@ -127,7 +127,6 @@ public class PendingLoan {
 		this.member = member;
 	}
 
-	/*
 	public long getMilliseconds() {
 		milliseconds = datePosted.getTime();
 		return milliseconds;
@@ -136,7 +135,6 @@ public class PendingLoan {
 	public void setMilliseconds(long milliseconds) {
 		this.milliseconds = milliseconds;
 	}
-	*/
 
 	@Override
 	public int hashCode() {

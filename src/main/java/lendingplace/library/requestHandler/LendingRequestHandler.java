@@ -75,21 +75,29 @@ public class LendingRequestHandler {
 		return lendableService.getLendableDao().findByCategoriesContaining(optional.get(), pageSettings);
 	}
 	
-	@GetMapping(path = "/pendingLoans", produces = "application/json")
-	public Page<PendingLoan> getPending(
+	@GetMapping(path = "/browse/pendingLoans/paginated", produces = "application/json")
+	@PreAuthorize("hasAuthority('Librarian')")
+	public Page<PendingLoan> getPendingPaginated(
 			@RequestParam(name = "sortBy", required = false) String sortSetting,
 			@RequestParam(name = "pageSize", required = false) Integer pageSize, 
 			@RequestParam(name = "pageNumber", required = false) Integer pageNumber) {
-		if (sortSetting == null) sortSetting = "creator";
-		if (pageSize == null) pageSize = 20;
+		if (pageSize == null) pageSize = 50;
 		if (pageSize < 1) pageSize = 1;
 		if (pageNumber == null || pageNumber < 1) pageNumber = 1;
-		Sort sortingOrder = Sort.unsorted();
+		Sort sortingOrder = Sort.by("datePosted").descending();
 		if (sortSetting != null) {
 			sortingOrder = Sort.by(sortSetting);
 		}
-		Pageable pageSettings = PageRequest.of(pageNumber - 1, pageSize, sortingOrder);
+		Pageable pageSettings = PageRequest.of(pageNumber - 1, 50, sortingOrder);
 		return lendableService.getPendingLoanDao().findAll(pageSettings);
+	}
+	
+	@GetMapping(path = "/browse/pendingLoans", produces = "application/json")
+	@PreAuthorize("hasAuthority('Librarian')")
+	public List<PendingLoan> getPendingList() {
+		List<PendingLoan> list =  lendableService.getPendingLoanDao().findAll();
+		list.sort((first, second) -> first.getDatePosted().compareTo(second.getDatePosted()));
+		return list;
 	}
 	
 	@GetMapping(path = "/search/lendables", produces = "application/json")
@@ -144,7 +152,7 @@ public class LendingRequestHandler {
 					+ "member id could be found.");
 		}
 		CommunityMember member = possibleMember.get();
-		CheckoutResponse responseContent = lendableService.checkout(member, items);
+		CheckoutResponse responseContent = lendableService.checkout(member, items, true);
 		int httpStatus = responseContent.getNotFoundList().isEmpty() ? 200 : 404;
 		return ResponseEntity.status(httpStatus).body(responseContent);
 	}

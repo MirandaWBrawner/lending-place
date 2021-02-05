@@ -62,7 +62,7 @@ public class UserRequestHandler {
 	private AccountService accountService;
 	
 	@Autowired
-	LibrarianDetailsService detailsService;
+	private LibrarianDetailsService detailsService;
 	
 	@PostMapping(path = "/signup")
 	public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest request) {

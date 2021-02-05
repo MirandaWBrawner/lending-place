@@ -117,6 +117,8 @@ DROP TABLE items_on_loan;
 SELECT * FROM community_member;
 INSERT INTO community_member (member_name, member_email, member_phone)
 	VALUES ('Guest', 'guest@example.com', '1-555-555-5555');
+INSERT INTO community_member (member_name, member_email, member_phone)
+	VALUES ('Angelo', 'angelo@example.com', '1-555-555-5555');
 UPDATE lendable SET number_available = 1000
 	WHERE lendable_id = 3;
 SELECT * FROM items_on_loan;
@@ -140,5 +142,25 @@ UPDATE lendable SET number_available = 1000;
 UPDATE lendable SET number_available = 0 WHERE lendable_id = 5;
 UPDATE lendable SET number_available = 1 WHERE lendable_id = 1;
 UPDATE lendable SET number_available = 25 WHERE lendable_id = 3;
-SELECT * FROM pending_loan ORDER BY date_posted DESC;
+SELECT * FROM pending_loan
+ ORDER BY date_posted DESC;
 DELETE FROM item_type WHERE type_id = 8;
+DELETE FROM pending_loan WHERE count = 0;
+USE lending;
+USE multisport;
+SELECT * FROM athlete;
+SELECT DISTINCT requester_name from pending_loan;
+UPDATE pending_loan SET requester_name = 'Mohan' WHERE requester_name = 'lMBJonxVLHpWksRQKNMCAxAfLh';
+UPDATE pending_loan SET requester_name = 'Selina' WHERE requester_name = 'QGFFaWwQWqmTfvlKrxJlqbWQgASMDviVs';
+UPDATE pending_loan SET requester_name = 'Felipe' WHERE requester_name = 'jaMnccpzvXQVazIFvdBigHWPgw';
+UPDATE pending_loan SET requester_name = 'Destiny' WHERE requester_name = 'yrmhCNjTCozHGLRLgSzKlIRBoIepJwOeY';
+UPDATE pending_loan SET requester_name = 'Tatiana' WHERE requester_name = 'MiwsNIvMjYkpEEwsgcSsXnZPtv';
+UPDATE pending_loan SET requester_name = 'Hassan' WHERE requester_name = 'QRSiNXguenQLlazbBtkrUxSXiAvaoHVBztD';
+UPDATE pending_loan SET requester_name = 'Jacinda' WHERE requester_name = 'jaMnccpzvXQVazIFvdBigHWPgw';
+UPDATE pending_loan SET requester_name = 'Nadia' WHERE requester_name = 'qcMqUixHfGnZTrBNHPfDPyyaZz';
+UPDATE pending_loan SET requester_name = 'Angelo' WHERE requester_name = 'Test Checkout without Member';
+UPDATE pending_loan SET requester_name = 'Nindji' WHERE requester_name = 'Test Recent Pending Loan';
+UPDATE pending_loan SET requester_name = 'Emile' WHERE requester_name = 'Test Checkout with Member';
+UPDATE pending_loan SET requester_name = 'So-jeong' WHERE requester_name = 'Miranda';
+UPDATE pending_loan SET member_id = 2 WHERE requester_name = 'Angelo';
+SELECT * FROM request;
